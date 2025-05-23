@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Live Chat Rooms</title>
+  <style>
+    body { font-family: sans-serif; background: #1e1e1e; color: #fff; margin: 0; padding: 20px; }
+    input, button { padding: 10px; margin: 5px; }
+    #chat { border: 1px solid #555; padding: 10px; height: 300px; overflow-y: auto; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <h1>💬 Chat Rooms</h1>
+  <input id="roomInput" placeholder="Enter room name"/>
+  <button onclick="joinRoom()">Join Room</button>
+  <div id="currentRoom"></div>
+  <div id="chat"></div>
+  <input id="msgInput" placeholder="Your message"/>
+  <button onclick="sendMsg()">Send</button>
+
+  <script>
+    let socket, room;
+
+    function joinRoom() {
+      room = document.getElementById('roomInput').value;
+      document.getElementById('currentRoom').innerText = `Room: ${room}`;
+      socket = new WebSocket(`wss://${location.host}/api/socket?room=${room}`);
+
+      socket.onmessage = e => {
+        const chat = document.getElementById('chat');
+        chat.innerHTML += `<div>${e.data}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      };
+    }
+
+    function sendMsg() {
+      const msg = document.getElementById('msgInput').value;
+      socket.send(msg);
+      document.getElementById('msgInput').value = '';
+    }
+  </script>
+</body>
+</html>
